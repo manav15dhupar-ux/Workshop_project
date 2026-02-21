@@ -4,9 +4,7 @@ Run with: streamlit run streamlit_app.py
 """
 
 import streamlit as st
-import os
 import requests
-from pathlib import Path
 from bs4 import BeautifulSoup
 
 # ✅ Import from same folder
@@ -62,6 +60,8 @@ def main():
             help="Get your key from https://aistudio.google.com/app/apikey"
         )
 
+        # ================= INITIALIZE AGENT =================
+
         if st.button("🚀 Initialize Agent", use_container_width=True):
 
             if not api_key:
@@ -70,6 +70,7 @@ def main():
                 with st.spinner("Initializing RAG Agent..."):
 
                     try:
+                        # Create Knowledge Base
                         st.session_state.kb = KnowledgeBase()
 
                         # Add default knowledge
@@ -82,15 +83,22 @@ def main():
                             source="Default Knowledge"
                         )
 
+                        # 🔍 DEBUG PRINTS
+                        print("Initializing RAGAgent...")
+                        print("API Key:", api_key)
+
                         st.session_state.agent = RAGAgent(
                             gemini_api_key=api_key,
                             knowledge_base=st.session_state.kb
                         )
 
+                        print("Agent created successfully:", st.session_state.agent)
+
                         st.success("✅ Agent initialized successfully!")
 
                     except Exception as e:
-                        st.error(f"Error: {str(e)}")
+                        st.error(f"Initialization Error: {str(e)}")
+                        raise
 
         st.markdown("---")
 
@@ -143,9 +151,7 @@ def main():
                 st.warning("⚠️ Please enter a URL")
             else:
                 try:
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0'
-                    }
+                    headers = {'User-Agent': 'Mozilla/5.0'}
 
                     response = requests.get(url, headers=headers, timeout=10)
                     response.raise_for_status()
@@ -202,7 +208,6 @@ def main():
     # Chat input
     if prompt := st.chat_input("Ask about GDG events, workshops, etc..."):
 
-        # Add user message
         st.session_state.messages.append(
             {"role": "user", "content": prompt}
         )
@@ -210,7 +215,6 @@ def main():
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate assistant response
         with st.chat_message("assistant"):
             with st.spinner("🤔 Thinking..."):
                 try:
@@ -221,7 +225,9 @@ def main():
                     if result['sources']:
                         with st.expander(f"📚 View {len(result['sources'])} Sources"):
                             for i, source in enumerate(result['sources'], 1):
-                                st.markdown(f"**Source {i}:** {source['metadata'].get('source', 'Unknown')}")
+                                st.markdown(
+                                    f"**Source {i}:** {source['metadata'].get('source', 'Unknown')}"
+                                )
                                 st.text(source['text'][:200] + "...")
 
                     st.session_state.messages.append(

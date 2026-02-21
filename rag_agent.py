@@ -2,10 +2,6 @@ from gemini_wrapper import GeminiWrapper
 from knowledge_base import KnowledgeBase
 from typing import List, Dict
 
-from gemini_wrapper import GeminiWrapper
-from typing import List, Dict
-
-
 class RAGAgent:
 
     def __init__(
