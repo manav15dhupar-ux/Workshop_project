@@ -112,7 +112,7 @@ git clone https://github.com/manav15dhupar-ux/Workshop_project.git
 cd Workshop_project
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r requriements.txt
 
 # Run the app
 streamlit run app.py
